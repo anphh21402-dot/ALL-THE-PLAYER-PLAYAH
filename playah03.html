@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayAh! - The Player Recruitment</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #FFD700; --text: #000; }
+        body { background: var(--bg); color: var(--text); font-family: 'VT323', monospace; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        .game-box { width: 90%; max-width: 700px; border: 5px solid #000; padding: 30px; background: var(--bg); box-shadow: 10px 10px 0px #000; position: relative; }
+        
+        .screen { display: none; text-align: center; }
+        .active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Pixel Cartoon Animation */
+        .cartoon-area { height: 120px; display: flex; justify-content: center; align-items: center; margin: 20px 0; overflow: hidden; }
+        .character { font-size: 60px; display: inline-block; }
+        
+        /* Animation Frames */
+        .anim-run { animation: runFrame 0.6s steps(2) infinite; }
+        @keyframes runFrame { 0% { content: '🏃‍♂️'; transform: scaleX(1); } 50% { content: '🏃'; transform: scaleX(1.1); } }
+        
+        .anim-climb { animation: climbFrame 0.8s steps(2) infinite; }
+        @keyframes climbFrame { 0% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+        .anim-fight { animation: fightFrame 0.5s steps(2) infinite; }
+        @keyframes fightFrame { 0% { content: '🤺'; transform: rotate(0deg); } 50% { content: '⚔️'; transform: rotate(-20deg); } }
+
+        /* Form Styling */
+        .form-grid { text-align: left; display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
+        label { font-size: 1.4rem; font-weight: bold; display: block; margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 10px; border: 3px solid #000; font-family: sans-serif; font-size: 1rem; box-sizing: border-box; }
+        .btn { background: #000; color: #FFD700; border: none; padding: 15px; font-family: 'VT323'; font-size: 1.6rem; cursor: pointer; width: 100%; margin-top: 20px; box-shadow: 5px 5px 0px #444; }
+        .btn:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0px #000; }
+        
+        .player-id { background: #000; color: #FFD700; padding: 5px 15px; display: inline-block; font-size: 1.5rem; margin-bottom: 15px; }
+        .checkbox-item { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-family: sans-serif; font-size: 0.9rem; }
+        .checkbox-item input { width: auto; margin: 0; }
+
+        /* Trophy Effect */
+        #final-gift { cursor: pointer; transition: transform 0.3s; }
+        #final-gift:active { transform: scale(0.8); }
+    </style>
+</head>
+<body>
+
+<div class="game-box">
+    <!-- INTRO CARTOON -->
+    <div id="scr-intro" class="screen active">
+        <div class="player-id">THE PLAYER #<span class="p-num">...</span></div>
+        <div class="cartoon-area"><span class="character">🏃‍♂️</span></div>
+        <p style="font-size: 1.5rem;">ĐANG KHỞI TẠO THẾ GIỚI PIXEL...</p>
+        <div id="load-box" style="width:100%; border:3px solid #000; height:20px;">
+            <div id="load-fill" style="background:#000; width:0%; height:100%; transition: 5s linear;"></div>
+        </div>
+        <button id="btn-start" class="btn" style="display:none;" onclick="showWelcome()">PRESS START</button>
+    </div>
+
+    <!-- WELCOME -->
+    <div id="scr-welcome" class="screen">
+        <h1>CHÀO MỪNG ĐẠI SỨ <br>PLAYAH! - THE PLAYER <span class="p-num"></span></h1>
+        <div class="cartoon-area" style="font-size: 80px;">🎮</div>
+        <button class="btn" onclick="goNext('scr-welcome', 'scr-p1')">BẮT ĐẦU NHIỆM VỤ</button>
+    </div>
+
+    <!-- TRANSITION SCREEN -->
+    <div id="scr-trans" class="screen">
+        <h2 id="trans-title">LEVEL UP!</h2>
+        <div class="cartoon-area"><span id="trans-char" class="character"></span></div>
+        <p id="trans-msg"></p>
+    </div>
+
+    <!-- PHẦN 1 -->
+    <div id="scr-p1" class="screen">
+        <h2>PHẦN 1: THÔNG TIN CƠ BẢN</h2>
+        <div class="form-grid">
+            <label>1. Họ và tên người đại diện</label><input type="text" id="name">
+            <label>2. Số điện thoại (Zalo)</label><input type="text" id="phone">
+            <label>3. Email sinh viên/nhóm</label><input type="email" id="email">
+            <label>4. Tên trường Đại học/Cao đẳng</label><input type="text" id="school">
+            <label>5. Địa chỉ nhận Kit</label><input type="text" id="address">
+        </div>
+        <button class="btn" onclick="startTrans('scr-p1', 'scr-p2', '🏃‍♂️', 'VƯỢT CHƯỚNG NGẠI VẬT...')">VƯỢT ẢI 1</button>
+    </div>
+
+    <!-- PHẦN 2 -->
+    <div id="scr-p2" class="screen">
+        <h2>PHẦN 2: THÔNG TIN HỌC THUẬT</h2>
+        <div class="form-grid">
+            <label>6. Tên môn học</label><input type="text" id="subject">
+            <label>7. Giảng viên hướng dẫn (Nếu có)</label><input type="text" id="teacher">
+            <label>8. Tên đề tài/Dự án đang thực hiện</label><input type="text" id="project">
+            <label>9. Mô tả ngắn gọn ý tưởng sử dụng kit</label><textarea id="desc" rows="2"></textarea>
+            <label>10. Link Demo Slide / Outline nội dung</label><input type="text" id="link">
+        </div>
+        <button class="btn" onclick="startTrans('scr-p2', 'scr-p3', '🧗‍♂️', 'ĐANG LEO RANK...')">VƯỢT ẢI 2</button>
+    </div>
+
+    <!-- PHẦN 3: CẬP NHẬT ĐẦY ĐỦ SẢN PHẨM -->
+    <div id="scr-p3" class="screen">
+        <h2>PHẦN 3: LỰA CHỌN "VŨ KHÍ"</h2>
+        <div class="form-grid">
+            <label>11. Bạn muốn nhận những món đồ nào? (Tick chọn)</label>
+            <div style="background:#fff; padding:10px; border:3px solid #000;">
+                <div class="checkbox-item"><input type="checkbox"> ALL-IN-ONE PACK (Nhận tất cả)</div>
+                <div class="checkbox-item"><input type="checkbox"> Áo thun PlayAh! (kit cố định)</div>
+                <div class="checkbox-item"><input type="checkbox"> Bộ Leaflet & Voucher (kit cố định)</div>
+                <div class="checkbox-item"><input type="checkbox"> Bao cao su</div>
+                <div class="checkbox-item"><input type="checkbox"> Gel bôi trơn</div>
+                <div class="checkbox-item"><input type="checkbox"> Bọt vệ sinh</div>
+            </div>
+            <label>12. Size áo thun</label>
+            <select id="size"><option>M</option><option>L</option><option>XL</option><option>XXL</option></select>
+        </div>
+        <button class="btn" onclick="startTrans('scr-p3', 'scr-p4', '⚔️', 'TIÊU DIỆT BOSS CUỐI...')">VƯỢT ẢI 3</button>
+    </div>
+
+    <!-- PHẦN 4 -->
+    <div id="scr-p4" class="screen">
+        <h2>PHẦN 4: CAM KẾT</h2>
+        <div class="form-grid">
+            <label>13. Bạn có đồng ý chụp ảnh/quay clip thuyết trình có sản phẩm PlayAh!?</label>
+            <div style="font-family:sans-serif; background:#fff; padding:10px; border:3px solid #000;">
+                <input type="radio" name="camket" value="san-sang" style="width:auto"> Sẵn sàng luôn!<br>
+                <input type="radio" name="camket" value="co-gang" style="width:auto"> Mình sẽ cố gắng sắp xếp.
+            </div>
+            <label>14. Lời nhắn gửi thêm đến PlayAh!</label>
+            <textarea id="message" rows="3"></textarea>
+        </div>
+        <button class="btn" onclick="submitData()">NHẬN KHO BÁU</button>
+    </div>
+
+    <!-- FINISH -->
+    <div id="scr-finish" class="screen">
+        <h1 id="finish-title">YOU ARE THE BEST PLAYER!</h1>
+        <div class="cartoon-area" style="font-size:100px">
+            <span id="final-gift" onclick="openTrophy()">🎁</span>
+        </div>
+        <p id="finish-msg" style="font-size:1.5rem">Nhấn vào hộp quà để mở kho báu!</p>
+    </div>
+</div>
+
+<script>
+    // 1. Quản lý số thứ tự Player
+    let pNum = localStorage.getItem('playah_id') || Math.floor(Math.random() * 100) + 1;
+    if(!localStorage.getItem('playah_id')) localStorage.setItem('playah_id', pNum);
+    document.querySelectorAll('.p-num').forEach(el => el.innerText = pNum);
+
+    // 2. Intro Animation
+    setTimeout(() => { document.getElementById('load-fill').style.width = '100%'; }, 100);
+    setTimeout(() => { 
+        document.getElementById('load-box').style.display = 'none';
+        document.getElementById('btn-start').style.display = 'block';
+    }, 5100);
+
+    function showWelcome() { goNext('scr-intro', 'scr-welcome'); }
+
+    function goNext(cur, next) {
+        document.getElementById(cur).classList.remove('active');
+        document.getElementById(next).classList.add('active');
+    }
+
+    function startTrans(cur, next, char, msg) {
+        document.getElementById(cur).classList.remove('active');
+        const trans = document.getElementById('scr-trans');
+        const tChar = document.getElementById('trans-char');
+        tChar.innerText = char;
+        tChar.className = 'character ' + (char === '🏃‍♂️' ? 'anim-run' : char === '🧗‍♂️' ? 'anim-climb' : 'anim-fight');
+        document.getElementById('trans-msg').innerText = msg;
+        trans.classList.add('active');
+        setTimeout(() => {
+            trans.classList.remove('active');
+            document.getElementById(next).classList.add('active');
+        }, 3000);
+    }
+
+    function openTrophy() {
+        const gift = document.getElementById('final-gift');
+        gift.innerText = "🏆";
+        gift.style.transform = "scale(1.5)";
+        document.getElementById('finish-msg').innerText = "Bộ Brand Kit sẽ được gửi tới bạn trong thời gian sớm nhất!";
+        document.getElementById('finish-msg').style.color = "#000";
+    }
+
+    function submitData() {
+        const btn = event.target;
+        btn.innerText = "ĐANG GỬI DỮ LIỆU...";
+        setTimeout(() => { goNext('scr-p4', 'scr-finish'); }, 1500);
+    }
+</script>
+</body>
+</html>
